@@ -1,5 +1,5 @@
 <?php
-require 'gapi-google-analytics-php-interface/gapi.class.php';
+require 'gapi.class.php';
 $ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount.com", "key.p12");
 $ga->requestAccountData();
 
