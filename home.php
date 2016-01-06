@@ -7,16 +7,14 @@
   google.load("visualization", "1", {packages:["corechart"]});
   google.setOnLoadCallback(drawChart);
 
-
   function drawChart() {
     <?php
-
     $ga->requestReportData($id,null,array('percentNewSessions', 'sessionsPerUser'));
     foreach($ga->getResults() as $result){
       $percentNewSessions = $result->getPercentNewSessions();
       $percentReturning = 100 - $percentNewSessions;
     }
-      
+
     $array = "['UserType', 'Porcentagem'],";
     $array .= "['New Visitor', ".$percentNewSessions."],";
     $array .= "['Returning Visitor', ".$percentReturning."],";
@@ -25,9 +23,28 @@
     var data = google.visualization.arrayToDataTable([<?=$array?>]);
     var options = { is3D: true, legend: {position: 'top', alignment: 'center'}, height: 250, witdh: 350};
 
-    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    var chart = new google.visualization.PieChart(document.getElementById('chart_div_user'));
     chart.draw(data, options);
-
+  }
+</script>
+<script type="text/javascript">
+  google.load('visualization', "1", {'packages':['geochart']});
+  google.setOnLoadCallback(drawRegionsMap);
+  
+  function drawRegionsMap() {
+    <?php
+    $ga->requestReportData($id, 'country', array('visits'));
+    $array = "['País', 'Visitas'],";
+      foreach ($ga->getResults() as $dados) { 
+        $array .= "['".$dados."', ".$dados->getVisits()."],";
+      }    
+    ?>
+    var data = google.visualization.arrayToDataTable([<?=$array?>]);
+    
+    var options = {backgroundColor: '#81d4fa',defaultColor: '#f5f5f5'};
+    
+    var chart = new google.visualization.GeoChart(document.getElementById('chart_div_geo'));
+    chart.draw(data, options);
   }
 </script>
 <!DOCTYPE html>
@@ -36,15 +53,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>Starter Template for Bootstrap</title>
-
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
   </head>
-
   <body>
-
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -63,10 +76,8 @@
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-
     <div class="container-fluid">
       <div class="row-fluid">
-
         <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -94,19 +105,24 @@
               <h3 class="panel-title">Usuários</h3>
             </div>
             <div class="panel-body">
-
-              <div id="chart_div"></div>  
+              <div id="chart_div_user"></div>  
             </div>
           </div>
         </div>
 
-
-
+        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Visitas por país</h3>
+            </div>
+            <div class="panel-body">
+              <div id="chart_div_geo" class="center-block"></div>  
+            </div>
+          </div>
+        </div>
       </div><!-- /.row-fluid -->
     </div><!-- /.container -->
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="assets/js/bootstrap.min.js"></script>
-
   </body>
 </html>
