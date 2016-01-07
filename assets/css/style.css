@@ -1,3 +1,6 @@
 body {
   padding-top: 80px;
 }
+.panel-body{
+  min-height:350px;
+}
