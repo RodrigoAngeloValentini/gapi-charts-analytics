@@ -52,62 +52,59 @@ foreach ($ga->getResults() as $dadosGlobais) {
 
   function drawRegionsMap() {
     <?php
-  $ga->requestReportData($id, 'country', array('visits'));
+  $ga->requestReportData($id, array('country','countryIsoCode'), array('visits'));
       $array = "['País', 'Visitas'],";
       foreach ($ga->getResults() as $dados) { 
-        $array .= "['".$dados."', ".$dados->getVisits()."],";
+        $array .= "['".$dados->getCountry()."', ".$dados->getVisits()."],";
       }    
     ?>
     var data = google.visualization.arrayToDataTable([<?=$array?>]);
 
-    var options = {backgroundColor: '#81d4fa',defaultColor: '#f5f5f5', height: '400', colorAxis: {colors: ['#90EE90', '#006400']}};
+    var options = {backgroundColor: '#81d4fa',defaultColor: '#f5f5f5', height: '300', colorAxis: {colors: ['#90EE90', '#006400']}};
 
     var chartCountry = new google.visualization.GeoChart(document.getElementById('chart_div_geo'));
     var chartState = new google.visualization.GeoChart(document.getElementById('chart_div_geo'));
-    var chartCity = new google.visualization.GeoChart(document.getElementById('chart_div_geo'));
 
     google.visualization.events.addListener(chartCountry, 'regionClick', function(e) {
       var country = e.region;
-      <?php
-      $ga->requestReportData($id, 'region', array('visits'),'-visits');
-      $array = "['Estado', 'Visitas'],";
-      foreach ($ga->getResults() as $dados) { 
-        $array .= "['".$dados."', ".$dados->getVisits()."],";
-      }    
-      ?>
-      var data = google.visualization.arrayToDataTable([<?=$array?>]);
-      var opts = {
-        region: country,
-        displayMode: 'regions',
-        resolution: 'provinces',
-        height: 400
-      };
-      chartCountry.clearChart();
-      chartState.draw(data, opts);
+      var filter = "countryIsoCode == "+country;
+      var id = <?=$id?>;
+      $.ajax({
+        method: "POST",
+        url: "ajax_estado.php",
+        data: { id:id, filter: filter }
+      })
+      .done(function( response ) {
+        var data = google.visualization.arrayToDataTable( eval('[' + response + ']'));
+
+        var opts = {
+          region: country,
+          displayMode: 'regions',
+          resolution: 'provinces',
+          height: 300
+        };
+        chartCountry.clearChart();
+        chartState.draw(data, opts);
+      });
     });
     
     google.visualization.events.addListener(chartState, 'regionClick', function(e) {
       var state = e.region;
-      <?php
-      $ga->requestReportData($id, 'city', array('visits'),'-visits');
-      $array = "['Cidade', 'Visitas'],";
-      foreach ($ga->getResults() as $dados) { 
-        $array .= "['".$dados."', ".$dados->getVisits()."],";
-      }    
-      ?>
-      var data = google.visualization.arrayToDataTable([<?=$array?>]);
-      var opts = {
-        region: state,
-        displayMode: 'markers',
-        resolution: 'provinces',
-        height: 400
-      };
-      chartState.clearChart();
-      chartCity.draw(data, opts);
+      alert(state);
+//      var filter  = "regionIsoCode =="+state;
+//      var id = <?=$id?>;
+//      $.ajax({
+//        method: "POST",
+//        url: "ajax_cidade.php",
+//        data: { id:id, filter: filter }
+//      })
+//      .done(function( response ) {
+//        
+//      });
     });
-
+    
+    chartState.clearChart();
     chartCountry.draw(data, options);
-
   }
 </script>
 <script type="text/javascript">
@@ -117,11 +114,11 @@ foreach ($ga->getResults() as $dadosGlobais) {
     <?php
 
   $ga->requestReportData($id, 'language', array('visits', 'percentNewSessions', 'newUsers', 'sessions'));
-        $array = "['Idioma', 'Visitas', { role: 'annotation' }], ";
-        foreach ($ga->getResults() as $dados) {
-          $porcentagem = $dados->getSessions()/$sessions_global*100;
-          $array .= "['".$dados."', ".$dados->getVisits().", '".substr($porcentagem,0,4)."%'],";
-        }      
+      $array = "['Idioma', 'Visitas', { role: 'annotation' }], ";
+      foreach ($ga->getResults() as $dados) {
+        $porcentagem = $dados->getSessions()/$sessions_global*100;
+        $array .= "['".$dados."', ".$dados->getVisits().", '".substr($porcentagem,0,4)."%'],";
+      }      
     ?>
     var data = google.visualization.arrayToDataTable([<?=$array?>]);
 
@@ -240,8 +237,8 @@ foreach ($ga->getResults() as $dadosGlobais) {
 
   function drawTable() {
     <?php
-  $array = "";
-      $ga->requestReportData($id, array('city'), 'sessions', '-sessions', null, null, null, 1, 10);
+      $array = "";
+      $ga->requestReportData($id, array('city'), 'sessions', '-sessions', null, null, null, 1, 12);
       foreach ($ga->getResults() as $dados) {
         $porcentagem = ($dados->getSessions() / $sessions_global) * 100;
         $array .= "['".$dados."', '".$dados->getSessions()."','".substr($porcentagem,0,4)."%'],";
@@ -332,17 +329,29 @@ foreach ($ga->getResults() as $dadosGlobais) {
         </div>
       </div>
 
-      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-12">
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">Visitas por país</h3>
+            <h3 class="panel-title">Visitas por país<button class="btn btn-default btn-xs pull-right" onclick="drawRegionsMap();"><i class="fa fa-refresh"></i></button></h3>
+
           </div>
           <div class="panel-body">
             <div id="chart_div_geo" class="center-block"></div>  
           </div>
         </div>
       </div>
-
+      
+      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Cidades</h3>
+          </div>
+          <div class="panel-body">
+            <div id="table_div" class="center-block"></div>  
+          </div>
+        </div>
+      </div>
+      
       <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -364,36 +373,6 @@ foreach ($ga->getResults() as $dadosGlobais) {
           </div>
         </div>
       </div>
-
-      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Cidades</h3>
-          </div>
-          <div class="panel-body">
-            <div id="table_div" class="center-block"></div>  
-          </div>
-        </div>
-      </div>
-
-      <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Estados</h3>
-          </div>
-          <div class="panel-body">
-            <?php
-              $filter = "country == Brazil || country == United States";
-              $ga->requestReportData($id, array('country','region'), array('visits'),'-visits',$filter);
-              
-              foreach ($ga->getResults() as $dados) { 
-                echo $dados,'<br>';
-              } 
-            ?>
-          </div>
-        </div>
-      </div>
-
 
     </div><!-- /.row-fluid -->
   </div><!-- /.container -->
