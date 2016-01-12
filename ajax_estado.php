@@ -4,8 +4,10 @@ $ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount
 
 $id = $_POST['id'];
 $filter = $_POST['filter'];
+$dataini = $_POST['dataini'];
+$datafim = $_POST['datafim'];
 
-$ga->requestReportData($id, array('regionIsoCode'), array('visits'),'-visits',$filter);
+$ga->requestReportData($id, array('regionIsoCode'), array('visits'),'-visits',$filter, $dataini, $datafim);
 $array = "['Estado', 'Visitas']";
 
 foreach ($ga->getResults() as $dados) {

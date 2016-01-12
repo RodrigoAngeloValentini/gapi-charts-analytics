@@ -4,3 +4,9 @@ body {
 .panel-body{
   min-height:350px;
 }
+.spacer {
+    margin-top: 60px !important;
+}
+.ranges li:last-child { 
+  display: none; 
+}
