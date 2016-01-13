@@ -20,17 +20,18 @@
 
 <div class="container-fluid">
   <div class="row-fluid">
-
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      <div class="pull-right">
-        <div class="form-group">  
-          <div class="input-group">
-            <input name="daterange" id="datarange" class="form-control" value="" readonly="" type="text">
-            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-            <form id="form_reload" method="post" action="index.php">
-              <input type="hidden" name="dataini" id="dataini_hidden">
-              <input type="hidden" name="datafim" id="datafim_hidden">
-            </form>
+      <div class="row">
+        <div class="pull-right col-xs-12 col-sm-4">
+          <div class="form-group">  
+            <div class="input-group">
+              <input name="daterange" id="datarange" class="form-control" value="" readonly="" type="text">
+              <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+              <form id="form_reload" method="post" action="index.php">
+                <input type="hidden" name="dataini" id="dataini_hidden">
+                <input type="hidden" name="datafim" id="datafim_hidden">
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -129,12 +130,43 @@
 
   </div><!-- /.row-fluid -->
 </div><!-- /.container -->
+<?php
+  if(isset($_POST['dataini'])){
+    $dataini = $_POST['dataini'];
+  }else{
+    $dataini = date('Y-m-d', strtotime('-30 day'));
+  }
+  if(isset($_POST['datafim'])){
+    $datafim = $_POST['datafim'];
+  }else{
+    $datafim = date('Y-m-d', strtotime('-1 day'));
+  }
 
+  require 'gapi.class.php';
+  $ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount.com", "key.p12");
+  $ga->requestAccountData();
+
+  foreach($ga->getAccounts() as $result)
+  {
+    //echo $result . ' ' . $result->getId() . ' (' . $result->getProfileId() . ")<br />";
+  }
+  $id = $result->getProfileId();
+  //$id = 114290063;
+  $ga->requestReportData($id, null, array('sessions'), null, null, $dataini, $datafim);
+  $status = false;
+  foreach ($ga->getResults() as $dadosGlobais) { 
+    $sessions_global = $dadosGlobais->getSessions();
+    $status = true;
+  }
+  if(!$status){
+    $sessions_global = 0;
+  }
+?>
 <script type="text/javascript">
   $(function() {
     var hoje = moment();
     var ontem = moment().subtract(1,'days');
-    var dataini = null;
+    var dataini = 'null';
     var datafim = null;
 
     $('#datarange').daterangepicker({
@@ -149,15 +181,16 @@
       locale: {
         format: 'DD/MM/YYYY'
       },
-      startDate: moment().subtract(30, 'days'),
-      endDate: ontem,
+      autoUpdateInput: true,
+      startDate: moment('<?=$dataini?>','YYYY MM DD'),
+      endDate: moment('<?=$datafim?>','YYYY MM DD'),
       "autoApply": true,
       "maxDate": hoje,
     })//show datepicker when clicking on the icon
       .next().click(function(){
       $(this).prev().focus();
     });
-
+    
     $('#datarange').change(function(){
       var value = $(this).val();
       var result = value.split(" - ");    
@@ -178,39 +211,6 @@
 
   });
 </script>
-<?php
-if(isset($_REQUEST['dataini'])){
-  $dataini = $_REQUEST['dataini'];
-}else{
-  $dataini = date('Y-m-d', strtotime('-30 day'));
-}
-if(isset($_REQUEST['datafim'])){
-  $datafim = $_REQUEST['datafim'];
-}else{
-  $datafim = date('Y-m-d', strtotime('-1 day'));
-}
-
-require 'gapi.class.php';
-$ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount.com", "key.p12");
-$ga->requestAccountData();
-
-foreach($ga->getAccounts() as $result)
-{
-  //echo $result . ' ' . $result->getId() . ' (' . $result->getProfileId() . ")<br />";
-}
-$id = $result->getProfileId();
-//$id = 114290063;
-$ga->requestReportData($id, null, array('pageviews', 'visits', 'users', 'percentNewSessions', 'bounceRate', 'avgSessionDuration','sessions'), null, null, $dataini, $datafim);
-foreach ($ga->getResults() as $dadosGlobais) { 
-  $pageviews_global = $dadosGlobais->getPageViews();
-  $visits_global = $dadosGlobais->getVisits();
-  $users_global = $dadosGlobais->getUsers();
-  $percentNewSessions_global = $dadosGlobais->getPercentNewSessions();
-  $bounceRate_global = $dadosGlobais->getBounceRate();
-  $avgSessionDuration_global = $dadosGlobais->getAvgSessionDuration();
-  $sessions_global = $dadosGlobais->getSessions();  
-}
-?>
 <script type="text/javascript">
   $(function(){
     var id = <?=$id?>;
@@ -223,14 +223,26 @@ foreach ($ga->getResults() as $dadosGlobais) {
       dataType: "json"
     })
     .done(function( response ) {
-      var html = "";
-      html += "<p>Sessões: <strong>"+response.sessions_global+"</strong></p>";
-      html += "<p>Usuários: <strong>"+response.users_global+"</strong></p>";
-      html += "<p>Visualizções de Páginas: <strong>"+response.pageviews_global+"</strong></p>";
-      html += "<p>Páginas/sessão: <strong>"+response.visits_global+"</strong></p>";
-      html += "<p>Duração média da sessão: <strong>"+response.avgSessionDuration_global+"</strong></p>";
-      html += "<p>Taxa de rejeição: <strong>"+response.bounceRate_global+"%</strong></p>";
-      html += "<p>Porcentagem de novas sessões: <strong>"+response.percentNewSessions_global+"%</strong></p>";
+      if(response){
+        var html = "";
+        html += "<p>Sessões: <strong><span id='sessions_global'>"+response.sessions_global+"</span></strong></p>";
+        html += "<p>Usuários: <strong>"+response.users_global+"</strong></p>";
+        html += "<p>Visualizções de Páginas: <strong>"+response.pageviews_global+"</strong></p>";
+        html += "<p>Páginas/sessão: <strong>"+response.visits_global+"</strong></p>";
+        html += "<p>Duração média da sessão: <strong>"+response.avgSessionDuration_global+"</strong></p>";
+        html += "<p>Taxa de rejeição: <strong>"+response.bounceRate_global+"%</strong></p>";
+        html += "<p>Porcentagem de novas sessões: <strong>"+response.percentNewSessions_global+"%</strong></p>";  
+      }else{
+        var html = "";
+        html += "<p>Sessões: <strong><span id='sessions_global'>0</span></strong></p>";
+        html += "<p>Usuários: <strong>0</strong></p>";
+        html += "<p>Visualizções de Páginas: <strong>0</strong></p>";
+        html += "<p>Páginas/sessão: <strong>0</strong></p>";
+        html += "<p>Duração média da sessão: <strong>0</strong></p>";
+        html += "<p>Taxa de rejeição: <strong>0%</strong></p>";
+        html += "<p>Porcentagem de novas sessões: <strong>0%</strong></p>";
+     }
+      
 
       $("#dados_gerais").html(html);
     });
@@ -244,19 +256,30 @@ foreach ($ga->getResults() as $dadosGlobais) {
   function drawChart() {
     <?php
       $ga->requestReportData($id,null,array('percentNewSessions', 'sessionsPerUser'), null, null, $dataini, $datafim);
+      $status = false;
       foreach($ga->getResults() as $result){
         $percentNewSessions = $result->getPercentNewSessions();
         $percentReturning = 100 - $percentNewSessions;
+        $status = true;
       }
-      $array = "['UserType', 'Porcentagem'],";
-      $array .= "['New Visitor', ".$percentNewSessions."],";
-      $array .= "['Returning Visitor', ".$percentReturning."],";
+      if($status){
+        $array = "['UserType', 'Porcentagem'],";
+        $array .= "['New Visitor', ".$percentNewSessions."],";
+        $array .= "['Returning Visitor', ".$percentReturning."],";
+      }else{
+        $array = "['UserType', 'Porcentagem'],";
+      }
+      
     ?>
-    var data = google.visualization.arrayToDataTable([<?=$array?>]);
-    var options = { is3D: true, legend: {position: 'top', alignment: 'center'}, height: 250, witdh: 350};
+    if(([<?=$array?>].length)>1){
+      var data = google.visualization.arrayToDataTable([<?=$array?>]);
+      var options = { is3D: true, legend: {position: 'top', alignment: 'center'}, height: 250, witdh: 350};
 
-    var chart = new google.visualization.PieChart(document.getElementById('chart_div_user'));
-    chart.draw(data, options);
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div_user'));
+      chart.draw(data, options);
+    }else{
+      $("#chart_div_user").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
 <script type="text/javascript">
@@ -315,18 +338,22 @@ foreach ($ga->getResults() as $dadosGlobais) {
       foreach ($ga->getResults() as $dados) {
         $porcentagem = $dados->getSessions()/$sessions_global*100;
         $array .= "['".$dados."', ".$dados->getVisits().", '".substr($porcentagem,0,4)."%'],";
-      }      
+      }     
     ?>
-    var data = google.visualization.arrayToDataTable([<?=$array?>]);
-    var view = new google.visualization.DataView(data);
-    var options = {
-      width: 400,
-      height: 300,
-      bar: {groupWidth: "75%"},
-      legend: { position: "none" },
-    };
-    var chart = new google.visualization.BarChart(document.getElementById("barchart_values"));
-    chart.draw(view, options);
+    if(([<?=$array?>].length)>1){
+      var data = google.visualization.arrayToDataTable([<?=$array?>]);
+      var view = new google.visualization.DataView(data);
+      var options = {
+        width: 400,
+        height: 300,
+        bar: {groupWidth: "75%"},
+        legend: { position: "none" },
+      };
+      var chart = new google.visualization.BarChart(document.getElementById("barchart_values"));
+      chart.draw(view, options);
+    }else{
+      $("#barchart_values").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
 <script type="text/javascript">
@@ -335,41 +362,52 @@ foreach ($ga->getResults() as $dadosGlobais) {
   function drawChart() {
     <?php
       $ga->requestReportData($id, array('operatingSystem','browser',), array('sessions'), null, null, $dataini, $datafim);
-      $arr = []; 
+      $arr = [];
+      $status = false;
       foreach ($ga->getResults() as $dados) {
         $arr [$dados->getOperatingSystem()][$dados->getBrowser()] = $dados->getSessions();
         $arrBrowser[] = $dados->getBrowser();
         $arrSystem[] = $dados->getOperatingSystem();
+        $status = true;
       }
-      $arrBrowser = array_unique($arrBrowser);
-      $arrSystem = array_unique($arrSystem);
+      if($status){
+        $arrBrowser = array_unique($arrBrowser);
+        $arrSystem = array_unique($arrSystem);
 
-      $arrayTopo = "['Sistema'";
-      foreach ($arrBrowser as $browser){
-        $arrayTopo .= ",'".$browser."'";
-      }
-      $arrayTopo .= "]";
-      $arrayConteudo = "";
-      foreach ($arrSystem as $system){
-        $arrayConteudo .= ",['".$system."'";
+        $arrayTopo = "['Sistema'";
         foreach ($arrBrowser as $browser){
-          if(array_key_exists($browser, $arr[$system])){
-            $view = $arr[$system][$browser];  
-          }else{
-            $view = NULL;
-          }
-          $arrayConteudo .=  ",".intval($view)."";
+          $arrayTopo .= ",'".$browser."'";
         }
-        $arrayConteudo .= "]";
+        $arrayTopo .= "]";
+        $arrayConteudo = "";
+        foreach ($arrSystem as $system){
+          $arrayConteudo .= ",['".$system."'";
+          foreach ($arrBrowser as $browser){
+            if(array_key_exists($browser, $arr[$system])){
+              $view = $arr[$system][$browser];  
+            }else{
+              $view = NULL;
+            }
+            $arrayConteudo .=  ",".intval($view)."";
+          }
+          $arrayConteudo .= "]";
+        }
+        $arrayFinal = $arrayTopo.$arrayConteudo;
+      }else{
+        $arrayFinal = "['Sistema','Navegador']";
       }
     ?>
-    var data = google.visualization.arrayToDataTable([<?=$arrayTopo.$arrayConteudo?>]);
-    var options = {
-      width: 300,
-      height: 300,
-    };
-    var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
-    chart.draw(data, options);
+    if(([<?=$arrayFinal?>].length)>1){
+      var data = google.visualization.arrayToDataTable([<?=$arrayFinal?>]);
+      var options = {
+        width: 300,
+        height: 300,
+      };
+      var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+      chart.draw(data, options);
+    }else{
+      $("#columnchart_material").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
 <script type="text/javascript">
@@ -384,15 +422,19 @@ foreach ($ga->getResults() as $dadosGlobais) {
         $array .= ",['".$dados."',".substr($porcentagem,0,4)."]";
       }
     ?>
-    var data = google.visualization.arrayToDataTable([<?=$array?>]);
-    var options = {
-      pieHole: 0.2,
-      width: 500,
-      height: 300
-      //is3D: true
-    };
-    var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
-    chart.draw(data, options);
+    if(([<?=$array?>].length)>1){
+      var data = google.visualization.arrayToDataTable([<?=$array?>]);
+      var options = {
+        pieHole: 0.2,
+        width: 500,
+        height: 300
+        //is3D: true
+      };
+      var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+      chart.draw(data, options);
+    }else{
+      $("#donutchart").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
 <script type="text/javascript">
@@ -406,17 +448,21 @@ foreach ($ga->getResults() as $dadosGlobais) {
         $array .= ",['".$dados."',".$dados->getSessions().",'".substr($dados->getSessions()/$sessions_global*100,0,4)."%']";    
       }
     ?>
-    var data = google.visualization.arrayToDataTable([<?=$array?>]);
-    var view = new google.visualization.DataView(data);
+    if(([<?=$array?>].length)>1){
+      var data = google.visualization.arrayToDataTable([<?=$array?>]);
+      var view = new google.visualization.DataView(data);
 
-    var options = {
-      width: 500,
-      height: 300,
-      bar: {groupWidth: "65%"},
-      legend: { position: "none" },
-    };
-    var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
-    chart.draw(view, options);
+      var options = {
+        width: 500,
+        height: 300,
+        bar: {groupWidth: "65%"},
+        legend: { position: "none" },
+      };
+      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+      chart.draw(view, options);
+    }else{
+      $("#columnchart_values").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
 <script type="text/javascript">
@@ -430,15 +476,18 @@ foreach ($ga->getResults() as $dadosGlobais) {
       foreach ($ga->getResults() as $dados) {
         $porcentagem = ($dados->getSessions() / $sessions_global) * 100;
         $array .= "['".$dados."', '".$dados->getSessions()."','".substr($porcentagem,0,4)."%'],";
-
       }
     ?>
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Cidade');
-    data.addColumn('string', 'Sessões');
-    data.addColumn('string', 'Porcentagem Sessões');
-    data.addRows([<?=$array?>]);
-    var table = new google.visualization.Table(document.getElementById('table_div'));
-    table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+    if(([<?=$array?>].length)>1){
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Cidade');
+      data.addColumn('string', 'Sessões');
+      data.addColumn('string', 'Porcentagem Sessões');
+      data.addRows([<?=$array?>]);
+      var table = new google.visualization.Table(document.getElementById('table_div'));
+      table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+    }else{
+      $("#table_div").html("<p>Nenhum dado</p>");
+    }
   }
 </script>
