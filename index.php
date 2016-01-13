@@ -34,7 +34,7 @@
     $(window).load(function() {
       $('#loading').hide();
       $('html').css('overflow','auto');
-    });
+    }); 
   </script>
 </html>
 

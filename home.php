@@ -191,22 +191,27 @@
       $(this).prev().focus();
     });
     
+    var datafilter_atual = $('#datarange').val();
+    
     $('#datarange').change(function(){
       var value = $(this).val();
-      var result = value.split(" - ");    
-      var char = "/";
-      dataini = result[0].replace(eval("/"+char+"/g"), "red"); 
-      dataini = moment(dataini, "DD MM YYYY");
+      
+      if(value != datafilter_atual){
+        var result = value.split(" - ");    
+        var char = "/";
+        dataini = result[0].replace(eval("/"+char+"/g"), "red"); 
+        dataini = moment(dataini, "DD MM YYYY");
 
-      datafim = result[1].replace(eval("/"+char+"/g"), "red"); 
-      datafim = moment(datafim, "DD MM YYYY");
+        datafim = result[1].replace(eval("/"+char+"/g"), "red"); 
+        datafim = moment(datafim, "DD MM YYYY");
 
-      dataini = dataini.format("YYYY-MM-DD");
-      datafim = datafim.format("YYYY-MM-DD");
+        dataini = dataini.format("YYYY-MM-DD");
+        datafim = datafim.format("YYYY-MM-DD");
 
-      $("#dataini_hidden").val(dataini);
-      $("#datafim_hidden").val(datafim);
-      $("#form_reload").submit();
+        $("#dataini_hidden").val(dataini);
+        $("#datafim_hidden").val(datafim);
+        $("#form_reload").submit();
+      }
     });
 
   });
@@ -264,8 +269,8 @@
       }
       if($status){
         $array = "['UserType', 'Porcentagem'],";
-        $array .= "['New Visitor', ".$percentNewSessions."],";
-        $array .= "['Returning Visitor', ".$percentReturning."],";
+        $array .= "['Novos visitantes', ".$percentNewSessions."],";
+        $array .= "['Visitante retornando', ".$percentReturning."],";
       }else{
         $array = "['UserType', 'Porcentagem'],";
       }
@@ -394,13 +399,13 @@
         }
         $arrayFinal = $arrayTopo.$arrayConteudo;
       }else{
-        $arrayFinal = "['Sistema','Navegador']";
+        $arrayFinal = "";
       }
     ?>
     if(([<?=$arrayFinal?>].length)>1){
       var data = google.visualization.arrayToDataTable([<?=$arrayFinal?>]);
       var options = {
-        width: 300,
+        width: 400,
         height: 300,
       };
       var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
