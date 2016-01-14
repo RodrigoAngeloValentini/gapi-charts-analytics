@@ -49,7 +49,7 @@
         </div>
       </div>
     </div>
-
+    
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -57,6 +57,18 @@
         </div>
         <div class="panel-body">
           <div id="chart_div_user"></div>  
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Usuários ativos</h3>
+        </div>
+        
+        <div class="panel-body" id="usuarios_ativos">
+
         </div>
       </div>
     </div>
@@ -253,7 +265,59 @@
     });
   });
 </script>
-<script type="text/javascript" src="https://www.google.com/jsapi"></script> 
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load("visualization", "1", {packages:["corechart"]});
+  google.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var id = <?=$id?>;
+    var dataini = "<?=$dataini?>";
+    var datafim = "<?=$datafim?>";
+    $.ajax({
+      method: "POST",
+      url: "ajax_usuariosativos.php",
+      data: { id:id, dataini: dataini, datafim: datafim },
+      dataType: "JSON"
+    })
+    .done(function( response ) {
+      
+      var array = "['Data', 'Ativos por um dia','Ativos por 7 dias', 'Ativos por 14 dias', 'Ativos por 30 dias']";
+      
+      $.each(response.usuariosAtivos, function(key, value){
+          var data = moment(value.date, "YYYYMMDD");
+          var data = data.format("DD MMM YYYY");
+          array += ",['"+data+"', "+value.users1Day+", "+value.users7Day+", "+value.users14Day+", "+value.users30Day+"]";
+      });
+      console.log(array);
+      var data = google.visualization.arrayToDataTable(eval('[' + array + ']'));
+      var options = {
+        //isStacked: true,
+        title: 'Usuários Ativos',
+        hAxis: {
+          title: 'Data',
+          textStyle: {
+            color: '#000',
+            fontSize: 8,
+            fontName: 'Arial',
+            bold: true,
+          },
+          titleTextStyle: {
+            color: '#000',
+            fontSize: 16,
+            fontName: 'Arial',
+            bold: true,
+            italic: false,
+          }
+        },
+        vAxis: {
+          minValue: 0
+        }
+      };
+      var chart = new google.visualization.LineChart(document.getElementById('usuarios_ativos'));
+      chart.draw(data, options);
+    });
+  }
+</script>
 <script type="text/javascript"> 
   google.load("visualization", "1", {packages:["corechart"]});
   google.setOnLoadCallback(drawChart);
@@ -351,7 +415,7 @@
       var options = {
         width: 400,
         height: 300,
-        bar: {groupWidth: "75%"},
+        bar: {groupWidth: "30%"},
         legend: { position: "none" },
       };
       var chart = new google.visualization.BarChart(document.getElementById("barchart_values"));
@@ -407,6 +471,7 @@
       var options = {
         width: 400,
         height: 300,
+        bar: { groupWidth: "50%" }
       };
       var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
       chart.draw(data, options);
@@ -460,7 +525,7 @@
       var options = {
         width: 500,
         height: 300,
-        bar: {groupWidth: "65%"},
+        bar: {groupWidth: "30%"},
         legend: { position: "none" },
       };
       var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
@@ -496,3 +561,7 @@
     }
   }
 </script>
+
+
+
+
