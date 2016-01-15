@@ -10,3 +10,6 @@ body {
 .ranges li:last-child { 
   display: none; 
 }
+.charts{
+  width: 100%;
+}

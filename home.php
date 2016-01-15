@@ -58,7 +58,7 @@
           <h3 class="panel-title">Usuários</h3>
         </div>
         <div class="panel-body">
-          <div id="chart_div_user"></div>  
+          <div id="chart_div_user" class="charts"></div>  
         </div>
       </div>
     </div>
@@ -69,9 +69,7 @@
           <h3 class="panel-title">Usuários ativos</h3>
         </div>
         
-        <div class="panel-body" id="usuarios_ativos">
-
-        </div>
+        <div class="panel-body" id="usuarios_ativos" class="charts"></div>
       </div>
     </div>
 
@@ -82,7 +80,7 @@
 
         </div>
         <div class="panel-body">
-          <div id="chart_div_geo" class="center-block"></div>  
+          <div id="chart_div_geo" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -93,7 +91,7 @@
           <h3 class="panel-title">Cidades</h3>
         </div>
         <div class="panel-body">
-          <div id="table_div" class="center-block"></div>  
+          <div id="table_div" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -104,7 +102,7 @@
           <h3 class="panel-title">Idioma</h3>
         </div>
         <div class="panel-body">
-          <div id="barchart_values" class="center-block"></div>  
+          <div id="barchart_values" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -115,7 +113,7 @@
           <h3 class="panel-title">Navegador e Sistema Operacional</h3>
         </div>
         <div class="panel-body">
-          <div id="columnchart_material" class="center-block"></div>  
+          <div id="columnchart_material" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -126,7 +124,7 @@
           <h3 class="panel-title">Dispositivo</h3>
         </div>
         <div class="panel-body">
-          <div id="donutchart" class="center-block"></div>  
+          <div id="donutchart" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -137,7 +135,7 @@
           <h3 class="panel-title">Origem</h3>
         </div>
         <div class="panel-body">
-          <div id="columnchart_values" class="center-block"></div>  
+          <div id="columnchart_values" class="center-block charts"></div>  
         </div>
       </div>
     </div>
@@ -274,8 +272,8 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
   google.load("visualization", "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
+  google.setOnLoadCallback(drawChart1);
+  function drawChart1() {
     var id = <?=$id?>;
     var dataini = "<?=$dataini?>";
     var datafim = "<?=$datafim?>";
@@ -325,9 +323,9 @@
 </script>
 <script type="text/javascript"> 
   google.load("visualization", "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawChart);
+  google.setOnLoadCallback(drawChart2);
 
-  function drawChart() {
+  function drawChart2() {
     <?php
       $ga->requestReportData($id,null,array('percentNewSessions', 'sessionsPerUser'), null, null, $dataini, $datafim);
       $status = false;
@@ -404,8 +402,8 @@
 </script>
 <script type="text/javascript">
   google.load('visualization', "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
+  google.setOnLoadCallback(drawChart3);
+  function drawChart3() {
     <?php
       $ga->requestReportData($id, 'language', array('visits', 'percentNewSessions', 'newUsers', 'sessions'), null, null, $dataini, $datafim);
       $array = "['Idioma', 'Visitas', { role: 'annotation' }], ";
@@ -418,7 +416,6 @@
       var data = google.visualization.arrayToDataTable([<?=$array?>]);
       var view = new google.visualization.DataView(data);
       var options = {
-        width: 400,
         height: 300,
         bar: {groupWidth: "30%"},
         legend: { position: "none" },
@@ -432,8 +429,8 @@
 </script>
 <script type="text/javascript">
   google.load('visualization', "1", {'packages':['bar']});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
+  google.setOnLoadCallback(drawChart4);
+  function drawChart4() {
     <?php
       $ga->requestReportData($id, array('operatingSystem','browser',), array('sessions'), null, null, $dataini, $datafim);
       $arr = [];
@@ -474,7 +471,6 @@
     if(([<?=$arrayFinal?>].length)>1){
       var data = google.visualization.arrayToDataTable([<?=$arrayFinal?>]);
       var options = {
-        width: 400,
         height: 300,
         bar: { groupWidth: "50%" }
       };
@@ -487,8 +483,8 @@
 </script>
 <script type="text/javascript">
   google.load("visualization", "1", {packages:["corechart"]});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
+  google.setOnLoadCallback(drawChart5);
+  function drawChart5() {
     <?php
       $ga->requestReportData($id, array('deviceCategory'), 'sessions', null, null, $dataini, $datafim);
       $array = "['Dispositivo','Porcentagem']";
@@ -501,7 +497,6 @@
       var data = google.visualization.arrayToDataTable([<?=$array?>]);
       var options = {
         pieHole: 0.2,
-        width: 500,
         height: 300
         //is3D: true
       };
@@ -514,8 +509,8 @@
 </script>
 <script type="text/javascript">
   google.load("visualization", "1", {packages:['corechart']});
-  google.setOnLoadCallback(drawChart);
-  function drawChart() {
+  google.setOnLoadCallback(drawChart6);
+  function drawChart6() {
     <?php
       $ga->requestReportData($id, array('source'), 'sessions', null, null, $dataini, $datafim);
       $array = "['Origem','Sessões',{ role: 'annotation' }]";
@@ -528,7 +523,6 @@
       var view = new google.visualization.DataView(data);
 
       var options = {
-        width: 500,
         height: 300,
         bar: {groupWidth: "30%"},
         legend: { position: "none" },
@@ -542,9 +536,9 @@
 </script>
 <script type="text/javascript">
   google.load("visualization", "1.1", {packages:["table"]});
-  google.setOnLoadCallback(drawTable);
+  google.setOnLoadCallback(drawChart7);
 
-  function drawTable() {
+  function drawChart7() {
     <?php
       $array = "";
       $ga->requestReportData($id, array('city'), 'sessions', '-sessions', null, $dataini, $datafim, 1, 12);
@@ -567,6 +561,16 @@
   }
 </script>
 
-
+<script>
+$(window).resize(function(){
+  drawChart1();
+  drawChart2();
+  drawChart3();
+  drawChart4();
+  drawChart5();
+  drawChart6();
+  drawRegionsMap();
+});
+</script>
 
 
