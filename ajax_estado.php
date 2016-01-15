@@ -1,6 +1,7 @@
 <?php
 require 'gapi.class.php';
-$ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount.com", "key.p12");
+require 'config.php';
+$ga = new gapi($my_email, $my_key);
 
 $id = $_POST['id'];
 $filter = $_POST['filter'];

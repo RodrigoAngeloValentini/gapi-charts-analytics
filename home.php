@@ -1,4 +1,5 @@
 
+<!--
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
@@ -14,9 +15,10 @@
       <ul class="nav navbar-nav">
         <li class="active"><a href="index.php">Home</a></li>
       </ul>
-    </div><!--/.nav-collapse -->
+    </div>/.nav-collapse 
   </div>
 </nav>
+-->
 
 <div class="container-fluid">
   <div class="row-fluid">
@@ -76,6 +78,29 @@
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
+          <h3 class="panel-title">Visitas por país<button class="btn btn-default btn-xs pull-right" onclick="drawRegionsMap();"><i class="fa fa-refresh"></i></button></h3>
+
+        </div>
+        <div class="panel-body">
+          <div id="chart_div_geo" class="center-block"></div>  
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Cidades</h3>
+        </div>
+        <div class="panel-body">
+          <div id="table_div" class="center-block"></div>  
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+      <div class="panel panel-default">
+        <div class="panel-heading">
           <h3 class="panel-title">Idioma</h3>
         </div>
         <div class="panel-body">
@@ -94,19 +119,7 @@
         </div>
       </div>
     </div>
-
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Visitas por país<button class="btn btn-default btn-xs pull-right" onclick="drawRegionsMap();"><i class="fa fa-refresh"></i></button></h3>
-
-        </div>
-        <div class="panel-body">
-          <div id="chart_div_geo" class="center-block"></div>  
-        </div>
-      </div>
-    </div>
-
+    
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -129,16 +142,7 @@
       </div>
     </div>
 
-    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Cidades</h3>
-        </div>
-        <div class="panel-body">
-          <div id="table_div" class="center-block"></div>  
-        </div>
-      </div>
-    </div>
+    
 
   </div><!-- /.row-fluid -->
 </div><!-- /.container -->
@@ -155,7 +159,9 @@
   }
 
   require 'gapi.class.php';
-  $ga = new gapi("rodrigo-angelo-valentini@massive-team-112917.iam.gserviceaccount.com", "key.p12");
+  require 'config.php';
+  $ga = new gapi($my_email, $my_key);
+  
   $ga->requestAccountData();
 
   foreach($ga->getAccounts() as $result)
@@ -288,7 +294,6 @@
           var data = data.format("DD MMM YYYY");
           array += ",['"+data+"', "+value.users1Day+", "+value.users7Day+", "+value.users14Day+", "+value.users30Day+"]";
       });
-      console.log(array);
       var data = google.visualization.arrayToDataTable(eval('[' + array + ']'));
       var options = {
         //isStacked: true,
