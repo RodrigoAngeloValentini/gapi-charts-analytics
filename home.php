@@ -1,30 +1,36 @@
 
 <!--
 <nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">GAPI.js + Google Chart.js</a>
-    </div>
-    <div id="navbar" class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="index.php">Home</a></li>
-      </ul>
-    </div>/.nav-collapse 
-  </div>
+<div class="container">
+<div class="navbar-header">
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+<span class="sr-only">Toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="#">GAPI.js + Google Chart.js</a>
+</div>
+<div id="navbar" class="collapse navbar-collapse">
+<ul class="nav navbar-nav">
+<li class="active"><a href="index.php">Home</a></li>
+</ul>
+</div>/.nav-collapse 
+</div>
 </nav>
 -->
 
 <div class="container-fluid">
   <div class="row-fluid">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+      <h2 id="title-page">Google Analytics</h2>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+
       <div class="row">
-        <div class="pull-right col-xs-12 col-sm-4">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pull-right">
           <div class="form-group">  
             <div class="input-group">
               <input name="daterange" id="datarange" class="form-control" value="" readonly="" type="text">
@@ -37,10 +43,12 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="row-fluid spacer">
+    </div>
+
+  </div>
+  <div class="clearfix"></div>
+  <div class="row-fluid">
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -51,7 +59,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -62,13 +70,13 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">Usuários ativos</h3>
         </div>
-        
+
         <div class="panel-body" id="usuarios_ativos" class="charts"></div>
       </div>
     </div>
@@ -84,7 +92,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -95,7 +103,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -117,7 +125,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -140,43 +148,43 @@
       </div>
     </div>
 
-    
+
 
   </div><!-- /.row-fluid -->
 </div><!-- /.container -->
 <?php
-  if(isset($_POST['dataini'])){
-    $dataini = $_POST['dataini'];
-  }else{
-    $dataini = date('Y-m-d', strtotime('-30 day'));
-  }
-  if(isset($_POST['datafim'])){
-    $datafim = $_POST['datafim'];
-  }else{
-    $datafim = date('Y-m-d', strtotime('-1 day'));
-  }
+if(isset($_POST['dataini'])){
+  $dataini = $_POST['dataini'];
+}else{
+  $dataini = date('Y-m-d', strtotime('-30 day'));
+}
+if(isset($_POST['datafim'])){
+  $datafim = $_POST['datafim'];
+}else{
+  $datafim = date('Y-m-d', strtotime('-1 day'));
+}
 
-  require 'gapi.class.php';
-  require 'config.php';
-  $ga = new gapi($my_email, $my_key);
-  
-  $ga->requestAccountData();
+require 'gapi.class.php';
+require 'config.php';
+$ga = new gapi($my_email, $my_key);
 
-  foreach($ga->getAccounts() as $result)
-  {
-    //echo $result . ' ' . $result->getId() . ' (' . $result->getProfileId() . ")<br />";
-  }
-  $id = $result->getProfileId();
-  //$id = 114290063;
-  $ga->requestReportData($id, null, array('sessions'), null, null, $dataini, $datafim);
-  $status = false;
-  foreach ($ga->getResults() as $dadosGlobais) { 
-    $sessions_global = $dadosGlobais->getSessions();
-    $status = true;
-  }
-  if(!$status){
-    $sessions_global = 0;
-  }
+$ga->requestAccountData();
+
+foreach($ga->getAccounts() as $result)
+{
+  //echo $result . ' ' . $result->getId() . ' (' . $result->getProfileId() . ")<br />";
+}
+$id = $result->getProfileId();
+//$id = 114290063;
+$ga->requestReportData($id, null, array('sessions'), null, null, $dataini, $datafim);
+$status = false;
+foreach ($ga->getResults() as $dadosGlobais) { 
+  $sessions_global = $dadosGlobais->getSessions();
+  $status = true;
+}
+if(!$status){
+  $sessions_global = 0;
+}
 ?>
 <script type="text/javascript">
   $(function() {
@@ -206,12 +214,12 @@
       .next().click(function(){
       $(this).prev().focus();
     });
-    
+
     var datafilter_atual = $('#datarange').val();
-    
+
     $('#datarange').change(function(){
       var value = $(this).val();
-      
+
       if(value != datafilter_atual){
         var result = value.split(" - ");    
         var char = "/";
@@ -243,7 +251,7 @@
       data: { id:id, dataini: dataini, datafim: datafim },
       dataType: "json"
     })
-    .done(function( response ) {
+      .done(function( response ) {
       if(response){
         var html = "";
         html += "<p>Sessões: <strong><span id='sessions_global'>"+response.sessions_global+"</span></strong></p>";
@@ -262,8 +270,8 @@
         html += "<p>Duração média da sessão: <strong>0</strong></p>";
         html += "<p>Taxa de rejeição: <strong>0%</strong></p>";
         html += "<p>Porcentagem de novas sessões: <strong>0%</strong></p>";
-     }
-      
+      }
+
 
       $("#dados_gerais").html(html);
     });
@@ -283,19 +291,20 @@
       data: { id:id, dataini: dataini, datafim: datafim },
       dataType: "JSON"
     })
-    .done(function( response ) {
-      
+      .done(function( response ) {
+
       var array = "['Data', 'Ativos por um dia','Ativos por 7 dias', 'Ativos por 14 dias', 'Ativos por 30 dias']";
-      
+
       $.each(response.usuariosAtivos, function(key, value){
-          var data = moment(value.date, "YYYYMMDD");
-          var data = data.format("DD MMM YYYY");
-          array += ",['"+data+"', "+value.users1Day+", "+value.users7Day+", "+value.users14Day+", "+value.users30Day+"]";
+        var data = moment(value.date, "YYYYMMDD");
+        var data = data.format("DD MMM YYYY");
+        array += ",['"+data+"', "+value.users1Day+", "+value.users7Day+", "+value.users14Day+", "+value.users30Day+"]";
       });
       var data = google.visualization.arrayToDataTable(eval('[' + array + ']'));
       var options = {
         //isStacked: true,
         title: 'Usuários Ativos',
+        pointSize: 4,
         hAxis: {
           title: 'Data',
           textStyle: {
@@ -327,21 +336,21 @@
 
   function drawChart2() {
     <?php
-      $ga->requestReportData($id,null,array('percentNewSessions', 'sessionsPerUser'), null, null, $dataini, $datafim);
-      $status = false;
-      foreach($ga->getResults() as $result){
-        $percentNewSessions = $result->getPercentNewSessions();
-        $percentReturning = 100 - $percentNewSessions;
-        $status = true;
-      }
-      if($status){
-        $array = "['UserType', 'Porcentagem'],";
-        $array .= "['Novos visitantes', ".$percentNewSessions."],";
-        $array .= "['Visitante retornando', ".$percentReturning."],";
-      }else{
-        $array = "['UserType', 'Porcentagem'],";
-      }
-      
+  $ga->requestReportData($id,null,array('percentNewSessions', 'sessionsPerUser'), null, null, $dataini, $datafim);
+                        $status = false;
+                        foreach($ga->getResults() as $result){
+                          $percentNewSessions = $result->getPercentNewSessions();
+                          $percentReturning = 100 - $percentNewSessions;
+                          $status = true;
+                        }
+                        if($status){
+                          $array = "['UserType', 'Porcentagem'],";
+                          $array .= "['Novos visitantes', ".$percentNewSessions."],";
+                          $array .= "['Visitante retornando', ".$percentReturning."],";
+                        }else{
+                          $array = "['UserType', 'Porcentagem'],";
+                        }
+
     ?>
     if(([<?=$array?>].length)>1){
       var data = google.visualization.arrayToDataTable([<?=$array?>]);
@@ -360,7 +369,7 @@
 
   function drawRegionsMap() {
     <?php
-      $ga->requestReportData($id, array('country','countryIsoCode'), array('visits'), null, null, $dataini, $datafim);
+  $ga->requestReportData($id, array('country','countryIsoCode'), array('visits'), null, null, $dataini, $datafim);
       $array = "['País', 'Visitas'],";
       foreach ($ga->getResults() as $dados) { 
         $array .= "['".$dados->getCountry()."', ".$dados->getVisits()."],";
@@ -384,7 +393,7 @@
         url: "ajax_estado.php",
         data: { id:id, filter: filter, dataini: dataini, datafim: datafim }
       })
-      .done(function( response ) {
+        .done(function( response ) {
         var data = google.visualization.arrayToDataTable( eval('[' + response + ']'));
         var opts = {
           region: country,
@@ -405,7 +414,7 @@
   google.setOnLoadCallback(drawChart3);
   function drawChart3() {
     <?php
-      $ga->requestReportData($id, 'language', array('visits', 'percentNewSessions', 'newUsers', 'sessions'), null, null, $dataini, $datafim);
+  $ga->requestReportData($id, 'language', array('visits', 'percentNewSessions', 'newUsers', 'sessions'), null, null, $dataini, $datafim);
       $array = "['Idioma', 'Visitas', { role: 'annotation' }], ";
       foreach ($ga->getResults() as $dados) {
         $porcentagem = $dados->getSessions()/$sessions_global*100;
@@ -432,7 +441,7 @@
   google.setOnLoadCallback(drawChart4);
   function drawChart4() {
     <?php
-      $ga->requestReportData($id, array('operatingSystem','browser',), array('sessions'), null, null, $dataini, $datafim);
+  $ga->requestReportData($id, array('operatingSystem','browser',), array('sessions'), null, null, $dataini, $datafim);
       $arr = [];
       $status = false;
       foreach ($ga->getResults() as $dados) {
@@ -486,7 +495,7 @@
   google.setOnLoadCallback(drawChart5);
   function drawChart5() {
     <?php
-      $ga->requestReportData($id, array('deviceCategory'), 'sessions', null, null, $dataini, $datafim);
+  $ga->requestReportData($id, array('deviceCategory'), 'sessions', null, null, $dataini, $datafim);
       $array = "['Dispositivo','Porcentagem']";
       foreach ($ga->getResults() as $dados) {
         $porcentagem = ($dados->getSessions() / $sessions_global) * 100;
@@ -512,7 +521,7 @@
   google.setOnLoadCallback(drawChart6);
   function drawChart6() {
     <?php
-      $ga->requestReportData($id, array('source'), 'sessions', null, null, $dataini, $datafim);
+  $ga->requestReportData($id, array('source'), 'sessions', null, null, $dataini, $datafim);
       $array = "['Origem','Sessões',{ role: 'annotation' }]";
       foreach ($ga->getResults() as $dados) {
         $array .= ",['".$dados."',".$dados->getSessions().",'".substr($dados->getSessions()/$sessions_global*100,0,4)."%']";    
@@ -540,7 +549,7 @@
 
   function drawChart7() {
     <?php
-      $array = "";
+  $array = "";
       $ga->requestReportData($id, array('city'), 'sessions', '-sessions', null, $dataini, $datafim, 1, 12);
       foreach ($ga->getResults() as $dados) {
         $porcentagem = ($dados->getSessions() / $sessions_global) * 100;
@@ -562,15 +571,15 @@
 </script>
 
 <script>
-$(window).resize(function(){
-  drawChart1();
-  drawChart2();
-  drawChart3();
-  drawChart4();
-  drawChart5();
-  drawChart6();
-  drawRegionsMap();
-});
+  $(window).resize(function(){
+    drawChart1();
+    drawChart2();
+    drawChart3();
+    drawChart4();
+    drawChart5();
+    drawChart6();
+    drawRegionsMap();
+  });
 </script>
 
 

@@ -28,7 +28,7 @@ for($i=0;$i<count($resultado);$i++){
       'users1Day' => $resultado[$i]->get1dayUsers(),
       'users7Day' => $resultado2[$i]->get7dayUsers(),
       'users14Day' => $resultado3[$i]->get14dayUsers(),
-      'users30Day' => $resultado3[$i]->get14dayUsers()
+      'users30Day' => $resultado4[$i]->get30dayUsers()
   );
 }
 
